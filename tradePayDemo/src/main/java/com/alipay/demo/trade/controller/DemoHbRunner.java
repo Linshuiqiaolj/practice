@@ -21,6 +21,7 @@ import java.util.List;
 public class DemoHbRunner extends AbsHbRunner {
 
     public DemoHbRunner(AlipayMonitorService monitorService) {
+		
         super(monitorService);
     }
 
