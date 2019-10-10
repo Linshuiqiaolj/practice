@@ -1,4 +1,4 @@
-package com.alipay.demo.trade;
+package com.alipay.demo.trade.controller;
 
 import com.alipay.api.AlipayResponse;
 import com.alipay.api.domain.TradeFundBill;
@@ -20,10 +20,12 @@ import com.alipay.demo.trade.service.impl.AlipayMonitorServiceImpl;
 import com.alipay.demo.trade.service.impl.AlipayTradeServiceImpl;
 import com.alipay.demo.trade.service.impl.AlipayTradeWithHBServiceImpl;
 import com.alipay.demo.trade.utils.Utils;
-import com.alipay.demo.trade.utils.ZxingUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.*;
 
@@ -32,9 +34,11 @@ import java.util.*;
  * 简单main函数，用于测试当面付api
  * sdk和demo的意见和问题反馈请联系：liuyang.kly@alipay.com
  */
+@Controller
+@RequestMapping("/main/")
 public class Main {
 	
-    private static Log                  log = LogFactory.getLog(Main.class);
+    private static Log log = LogFactory.getLog(Main.class);
 
     // 支付宝当面付2.0服务
     private static AlipayTradeService   tradeService;
@@ -77,30 +81,30 @@ public class Main {
         }
     }
 
-    public static void main(String[] args) {
-        Main main = new Main();
-
-        // 系统商商测试交易保障接口api
-        //        main.test_monitor_sys();
-
-        // POS厂商测试交易保障接口api
-        //        main.test_monitor_pos();
-
-        // 测试交易保障接口调度
-        //        main.test_monitor_schedule_logic();
-
-        // 测试当面付2.0支付（使用未集成交易保障接口的当面付2.0服务）
-        //        main.test_trade_pay(tradeService);
-
-        // 测试查询当面付2.0交易
-        //        main.test_trade_query();
-
-        // 测试当面付2.0退货
-        //        main.test_trade_refund();
-
-        // 测试当面付2.0生成支付二维码
-        main.test_trade_precreate();
-    }
+//    public static void main(String[] args) {
+//        Main main = new Main();
+//
+//        // 系统商商测试交易保障接口api
+//        //        main.test_monitor_sys();
+//
+//        // POS厂商测试交易保障接口api
+//        //        main.test_monitor_pos();
+//
+//        // 测试交易保障接口调度
+//        //        main.test_monitor_schedule_logic();
+//
+//        // 测试当面付2.0支付（使用未集成交易保障接口的当面付2.0服务）
+//        //        main.test_trade_pay(tradeService);
+//
+//        // 测试查询当面付2.0交易
+//        //        main.test_trade_query();
+//
+//        // 测试当面付2.0退货
+//        //        main.test_trade_refund();
+//
+//        // 测试当面付2.0生成支付二维码
+//        main.test_trade_precreate();
+//    }
 
     // 测试系统商交易保障调度
     public void test_monitor_schedule_logic() {
@@ -197,7 +201,9 @@ public class Main {
     }
 
     // 测试当面付2.0支付
-    public void test_trade_pay(AlipayTradeService service) {
+    @RequestMapping("test_trade_pay")
+    @ResponseBody
+    public String test_trade_pay(AlipayTradeService service) {
         // (必填) 商户网站订单系统中唯一订单号，64个字符以内，只能包含字母、数字、下划线，
         // 需保证商户系统端不能重复，建议通过数据库sequence生成，
         String outTradeNo = "tradepay" + System.currentTimeMillis()
@@ -268,24 +274,30 @@ public class Main {
         switch (result.getTradeStatus()) {
             case SUCCESS:
                 log.info("支付宝支付成功: )");
-                break;
+                return "SUCCESS";
+//                break;
 
             case FAILED:
                 log.error("支付宝支付失败!!!");
-                break;
+                return "FAIL";
+//                break;
 
             case UNKNOWN:
                 log.error("系统异常，订单状态未知!!!");
-                break;
+                return "ERROR";
+//                break;
 
             default:
                 log.error("不支持的交易状态，交易返回异常!!!");
-                break;
+                return "ERROR NO";
+//                break;
         }
     }
 
     // 测试当面付2.0查询订单
-    public void test_trade_query() {
+    @RequestMapping("test_trade_query")
+    @ResponseBody
+    public String test_trade_query() {
         // (必填) 商户订单号，通过此商户订单号查询当面付的交易状态
         String outTradeNo = "tradepay14817938139942440181";
 
@@ -307,24 +319,30 @@ public class Main {
                         log.info(bill.getFundChannel() + ":" + bill.getAmount());
                     }
                 }
-                break;
+                return "SUCCESS";
+//                break;
 
             case FAILED:
                 log.error("查询返回该订单支付失败或被关闭!!!");
-                break;
+                return "FAIL";
+//                break;
 
             case UNKNOWN:
                 log.error("系统异常，订单支付状态未知!!!");
-                break;
+                return "ERROR";
+//                break;
 
             default:
                 log.error("不支持的交易状态，交易返回异常!!!");
-                break;
+                return "ERROR NO";
+//                break;
         }
     }
 
     // 测试当面付2.0退款
-    public void test_trade_refund() {
+    @RequestMapping("test_trade_refund")
+    @ResponseBody
+    public String test_trade_refund() {
         // (必填) 外部订单号，需要退款交易的商户外部订单号
         String outTradeNo = "tradepay14817938139942440181";
 
@@ -350,24 +368,30 @@ public class Main {
         switch (result.getTradeStatus()) {
             case SUCCESS:
                 log.info("支付宝退款成功: )");
-                break;
+                return "SUCCESS";
+//                break;
 
             case FAILED:
                 log.error("支付宝退款失败!!!");
-                break;
+                return "FAIL";
+//                break;
 
             case UNKNOWN:
                 log.error("系统异常，订单退款状态未知!!!");
-                break;
+                return "ERROR";
+//                break;
 
             default:
                 log.error("不支持的交易状态，交易返回异常!!!");
-                break;
+                return "ERROR NO";
+//                break;
         }
     }
 
     // 测试当面付2.0生成支付二维码
-    public void test_trade_precreate() {
+    @RequestMapping("test_trade_precreate")
+    @ResponseBody
+    public String test_trade_precreate() {
         // (必填) 商户网站订单系统中唯一订单号，64个字符以内，只能包含字母、数字、下划线，
         // 需保证商户系统端不能重复，建议通过数据库sequence生成，
         String outTradeNo = "tradeprecreate" + System.currentTimeMillis()
@@ -437,19 +461,23 @@ public class Main {
                     response.getOutTradeNo());
                 log.info("filePath:" + filePath);
                 //                ZxingUtils.getQRCodeImge(response.getQrCode(), 256, filePath);
-                break;
+                return "SUCCESS";
+//                break;
 
             case FAILED:
                 log.error("支付宝预下单失败!!!");
-                break;
+                return "FAIL";
+//                break;
 
             case UNKNOWN:
                 log.error("系统异常，预下单状态未知!!!");
-                break;
+                return "ERROR";
+//                break;
 
             default:
                 log.error("不支持的交易状态，交易返回异常!!!");
-                break;
+                return "ERROR NO";
+//                break;
         }
     }
 }
